@@ -24,9 +24,9 @@ The back-end contains intentional bugs that you will discover and fix by writing
     - [1.3.2. Add a new unit test](#132-add-a-new-unit-test)
     - [1.3.3. Fix the bug](#133-fix-the-bug)
     - [1.3.4. Rerun unit tests](#134-rerun-unit-tests)
-    - [1.3.5. Commit the fix](#135-commit-the-fix)
+    - [1.3.5. Deploy the fixed version to the VM](#135-deploy-the-fixed-version-to-the-vm)
   - [1.4. Part B: Run end-to-end tests remotely](#14-part-b-run-end-to-end-tests-remotely)
-    - [1.4.1. Redeploy the fixed version](#141-redeploy-the-fixed-version)
+    - [1.4.1. Set the required environment variables in the terminal](#141-set-the-required-environment-variables-in-the-terminal)
     - [1.4.2. Run existing end-to-end tests](#142-run-existing-end-to-end-tests)
     - [1.4.3. Add two end-to-end tests](#143-add-two-end-to-end-tests)
     - [1.4.4. Fix the bug](#144-fix-the-bug)
@@ -87,13 +87,31 @@ Title: `[Task] Back-end Testing`
 
 1. [Open the file](../../../wiki/vs-code.md#open-the-file):
    [`backend/tests/unit/test_interactions.py`](../../../backend/tests/unit/test_interactions.py).
-2. Add a new unit test that targets the following boundary-value case:
+2. Add a new unit test that targets the following [boundary-value case](../../../wiki/testing.md#boundary-value-analysis):
 
    An interaction whose `item_id` is exactly equal to `max_item_id` — for example, `item_id=2` and `max_item_id=2`. This interaction should appear in the results because the filter condition is "less than or equal to."
 
    Name the test `test_filter_includes_interaction_at_boundary`.
 
-3. To run the tests,
+3. <details><summary>Click to open a hint</summary>
+
+   The code for the new case should be almost the same as for the existing tests.
+
+   </details>
+
+4. <details><summary>Click to open the solution</summary>
+
+   ```python
+   def test_filter_includes_interaction_at_boundary() -> None:
+       interactions = [_make_log(1, 1, 2)]
+       result = filter_by_max_item_id(interactions=interactions, max_item_id=2)
+       assert len(result) == 1
+       assert result[0].id == 1
+   ```
+
+   </details>
+
+5. To run the tests,
 
    [run in the `VS Code Terminal`](../../../wiki/vs-code.md#run-a-command-in-the-vs-code-terminal):
 
@@ -101,19 +119,19 @@ Title: `[Task] Back-end Testing`
    uv run poe test
    ```
 
-4. Observe that the new test fails.
+6. Observe that the new test fails.
 
    The output should be similar to this:
 
    ```terminal
-   FAILED backend/tests/unit/test_interactions.py::test_filter_includes_interaction_at_boundary - AssertionError: assert 0 == 1
+   FAILED backend/tests/unit/test_interactions.py::test_filter_includes_interaction_at_boundary - assert 0 == 1
    ```
 
    This line means the following:
    - The test failed (`FAILED`).
    - The test is in the file `backend/tests/unit/test_interactions.py`.
    - The name of the failing test is `test_filter_includes_interaction_at_boundary`.
-   - The failed assertion is `assert 0 == 1` — the filter returned 0 interactions, but 1 was expected.
+   - The failed [assertion](../../../wiki/testing.md#assertion) is `assert 0 == 1` — the filter returned 0 interactions, but 1 was expected.
 
 #### 1.3.3. Fix the bug
 
@@ -163,7 +181,7 @@ Title: `[Task] Back-end Testing`
    ===================== 4 passed in X.XXs =====================
    ```
 
-#### 1.3.5. Commit the fix
+#### 1.3.5. Deploy the fixed version to the VM
 
 1. [Commit](../../../wiki/git-workflow.md#commit) your changes.
 
@@ -173,13 +191,16 @@ Title: `[Task] Back-end Testing`
    fix: use <= instead of < in max_item_id filter
    ```
 
-<!-- TODO push commit -->
+2. Push the fix to `GitHub`.
+
+<!-- TODO open an existing terminal or connect to the VM in a new terminal -->
 <!-- TODO pull branch on the VM -->
+<!-- TODO docker compose down app -->
+<!-- TODO docker compose up app --build -->
 
 ### 1.4. Part B: Run end-to-end tests remotely
 
 <!-- no toc -->
-- [1.4.1. Redeploy the fixed version](#141-redeploy-the-fixed-version)
 - [1.4.2. Run existing end-to-end tests](#142-run-existing-end-to-end-tests)
 - [1.4.3. Add two end-to-end tests](#143-add-two-end-to-end-tests)
 - [1.4.4. Fix the bug](#144-fix-the-bug)
@@ -187,40 +208,41 @@ Title: `[Task] Back-end Testing`
 - [1.4.6. Commit the fix](#146-commit-the-fix)
 
 > [!NOTE]
-> End-to-end tests run on your local machine and send real [`HTTP`](../../../wiki/http.md#what-is-http) requests to the deployed version on the VM.
+> End-to-end tests run on your local machine and send real [`HTTP` requests](../../../wiki/http.md#http-request) to the deployed version on the VM.
 
-#### 1.4.1. Redeploy the fixed version
+#### 1.4.1. Set the required environment variables in the terminal
 
-1. [Deploy the fixed version to your VM](./task-1.md#12-deploy-the-back-end-to-the-vm).
+<!-- TODO use pydantic-settings for the tests -->
+<!-- TODO use .env.tests.example and .env.tests.secret -->
+1. To set the [base URL](../../../wiki/api.md#base-url) of your deployed [API](../../../wiki/api.md#what-is-an-api),
+
+   [run in the `VS Code Terminal`](../../../wiki/vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+   ```terminal
+   export API_BASE_URL=http://<your-vm-ip-address>:<caddy-port>
+   ```
+
+   Replace:
+
+   - [`<your-vm-ip-address>`](../../../wiki/vm.md#your-vm-ip-address)
+   - [`<caddy-port>`](../../../wiki/caddy.md#caddy-port)
+
+2. To set the [API key](../../../wiki/api.md#api-key),
+
+   [run in the `VS Code Terminal`](../../../wiki/vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+   <!-- TODO use the value from .env.docker.secret on the VM -->
+   <!-- TODO explain how to get that value -->
+
+   ```terminal
+   export API_KEY=<your-api-key>
+   ```
+
+   Replace `<your-api-key>` with the same value as in your [`.env.docker.secret`](../../../wiki/dotenv-docker-secret.md#api_key) file on the VM.
 
 #### 1.4.2. Run existing end-to-end tests
 
-1. Set the required environment variables in the terminal. Complete these steps:
-
-   1. To set the base URL of your deployed API,
-
-      [run in the `VS Code Terminal`](../../../wiki/vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-      ```terminal
-      export API_BASE_URL=http://<your-vm-ip-address>:<caddy-port>
-      ```
-
-      Replace:
-
-      - [`<your-vm-ip-address>`](../../../wiki/vm.md#your-vm-ip-address)
-      - [`<caddy-port>`](../../../wiki/caddy.md#caddy-port)
-
-   2. To set the API key,
-
-      [run in the `VS Code Terminal`](../../../wiki/vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-      ```terminal
-      export API_KEY=<your-api-key>
-      ```
-
-      Replace `<your-api-key>` with the same value as in your [`.env.docker.secret`](../../../wiki/dotenv-docker-secret.md#api_key) file.
-
-2. To run the end-to-end tests,
+1. To run the end-to-end tests,
 
    [run in the `VS Code Terminal`](../../../wiki/vs-code.md#run-a-command-in-the-vs-code-terminal):
 
@@ -228,7 +250,7 @@ Title: `[Task] Back-end Testing`
    uv run poe test-e2e
    ```
 
-3. All existing end-to-end tests should pass.
+2. All existing end-to-end tests should pass.
 
    The output should be similar to this:
 
@@ -260,6 +282,8 @@ Title: `[Task] Back-end Testing`
        response = client.get("/interactions/")
        assert isinstance(response.json(), list)
    ```
+
+   <!-- TODO use pydantic? -->
 
    </details>
 
@@ -313,7 +337,8 @@ Title: `[Task] Back-end Testing`
 
 #### 1.4.5. Redeploy and rerun
 
-1. [Deploy the fixed version to the VM](./task-1.md#12-deploy-the-back-end-to-the-vm).
+1. [Deploy the fixed version to the VM](#135-deploy-the-fixed-version-to-the-vm).
+
 2. To run the end-to-end tests,
 
    [run in the `VS Code Terminal`](../../../wiki/vs-code.md#run-a-command-in-the-vs-code-terminal):
