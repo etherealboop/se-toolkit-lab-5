@@ -4,11 +4,11 @@ description: Review a file for convention violations
 argument-hint: "<path>"
 ---
 
-Review a single file for problems — first conceptual and pedagogical issues, then convention violations. The file must be under `lab/tasks/` or `wiki/`.
+Review a single file for problems — first conceptual and pedagogical issues, then convention violations. The file must be under `lab/tasks/`, `wiki/`, or `contributing/conventions/`.
 
 ## Steps
 
-1. Parse `$ARGUMENTS` to get the file path. Accept paths under `lab/tasks/` (e.g., `lab/tasks/setup.md`, `lab/tasks/required/task-2.md`) or `wiki/` (e.g., `wiki/web-development.md`). If the path is missing or does not point to a file under one of these directories, ask the user.
+1. Parse `$ARGUMENTS` to get the file path. Accept paths under `lab/tasks/` (e.g., `lab/tasks/setup.md`, `lab/tasks/required/task-2.md`), `wiki/` (e.g., `wiki/web-development.md`), or `contributing/conventions/` (e.g., `contributing/conventions/writing/common.md`). If the path is missing or does not point to a file under one of these directories, ask the user.
 2. Read the target file.
 3. Read the convention files that apply to the target file:
    - **For `lab/tasks/` files:**
@@ -17,6 +17,8 @@ Review a single file for problems — first conceptual and pedagogical issues, t
    - **For `wiki/` files:**
      - [`contributing/conventions/writing/common.md`](../../../contributing/conventions/writing/common.md) — writing conventions (4.1–4.23)
      - [`contributing/conventions/writing/wiki.md`](../../../contributing/conventions/writing/wiki.md) — wiki file structure and section patterns
+   - **For `contributing/conventions/` files:**
+     - [`contributing/conventions/conventions.md`](../../../contributing/conventions/conventions.md) — conventions for writing conventions
 4. **Conceptual review** (only for `lab/tasks/` files): Analyse the file against each dimension (D1–D10) from Section 13 of [`contributing/conventions/writing/tasks.md`](../../../contributing/conventions/writing/tasks.md). For each problem found, record: the dimension, the line number(s) or section, a short description, severity (`[High]`, `[Medium]`, or `[Low]`), and a suggested fix.
 5. **Convention review**: Go through the target file **line by line**. Check it against **every** convention in the applicable convention files. Flag each violation with its line number.
 6. Scan for `<!-- TODO ... -->` comments. Report each one with its line number and the comment text.
@@ -30,10 +32,11 @@ Review a single file for problems — first conceptual and pedagogical issues, t
 - Do not fix anything — only report.
 - If a convention does not apply to the file (e.g., the file has no Docker commands), skip that category and note "Not applicable."
 - For `lab/tasks/setup.md`: skip task-only conventions (Section 3 template, acceptance criteria format). Apply all `common.md` conventions.
+- For `contributing/conventions/conventions.md` itself: apply its own rules — the file is self-referential and must comply with the conventions it defines.
 
 ## Output format
 
-Write the report to `instructors/file-reviews/<repo-root-path>`, where `<repo-root-path>` is the file's path from the repository root (e.g., `instructors/file-reviews/lab/tasks/setup.md` for `lab/tasks/setup.md`, `instructors/file-reviews/wiki/web-development.md` for `wiki/web-development.md`). Create intermediate directories if they do not exist.
+Write the report to `instructors/file-reviews/<repo-root-path>`, where `<repo-root-path>` is the file's path from the repository root (e.g., `instructors/file-reviews/lab/tasks/setup.md` for `lab/tasks/setup.md`, `instructors/file-reviews/wiki/web-development.md` for `wiki/web-development.md`, `instructors/file-reviews/contributing/conventions/writing/common.md` for `contributing/conventions/writing/common.md`). Create intermediate directories if they do not exist.
 
 The report must be self-contained so another session or agent can act on it without extra context. Structure:
 
